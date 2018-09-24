@@ -15,11 +15,11 @@ handleServer = (req, res) => {
         youTubeDl.getInfo(youTubeUrlOfVideo)
           .then(data => {
             console.log("Successfully completed request to YouTube: " + youtubeVideoId)
-            res.end(JSON.stringify(info));
+            res.end(JSON.stringify(data));
           })
           .catch(error => {
             console.log("Error occurred while getting youtube url " + youtubeVideoId)
-            res.end(JSON.stringify(err));
+            res.end(JSON.stringify(error));
           });
     } else {
         console.log("404 occurred");
