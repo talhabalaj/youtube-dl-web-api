@@ -4,7 +4,7 @@
   "description": "YouTubeDL API",
   "main": "index.js",
   "scripts": {
-    "test": "n"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
