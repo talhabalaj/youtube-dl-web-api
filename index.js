@@ -1,24 +1,35 @@
 const youTubeDl = require("ytdl-core");
 const http = require("http");
 
-const server = http.createServer(handleServer);
+let handleServer;
 const PORT = process.env.PORT || 3000;
 
 const youTubeUrl = 'https://youtube.com/watch?v=';
 
-const handleServer = (req, res) => {
+handleServer = (req, res) => {
+    console.log("Request received");
     if (req.url.match(/\/[A-Z-a-z-0-9-_]{11}/gi)) {
-        const youTubeUrlOfVideo = youTubeUrl + req.url.split('/')[0];
-        youTubeDl.getInfo(youTubeUrlOfVideo, (err, info) => {
-            if (err) {
-                return res.end(JSON.stringify(err))
-            }
-            return res.end(JSON.stringify(info));
-        })
+        console.log("Getting youtube stuff");
+        const youtubeVideoId = req.url.split('/')[1];
+        const youTubeUrlOfVideo = youTubeUrl + youtubeVideoId;
+        youTubeDl.getInfo(youTubeUrlOfVideo)
+          .then(data => {
+            console.log("Successfully completed request to YouTube: " + youtubeVideoId)
+            res.end(JSON.stringify(info));
+          })
+          .catch(error => {
+            console.log("Error occurred while getting youtube url " + youtubeVideoId)
+            res.end(JSON.stringify(err));
+          });
+    } else {
+        console.log("404 occurred");
+        res.end(JSON.stringify({
+            Error: "404 not found"
+        }))
     }
-    return res.end(JSON.stringify({
-        Error: "404 not found"
-    }))
 }
 
+const server = http.createServer(handleServer);
 server.listen(PORT)
+
+console.log("Listening http://localhost:" + PORT)
