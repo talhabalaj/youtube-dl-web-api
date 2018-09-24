@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/talhabalaj/youtube-dl-web-api/issues"
   },
-  "homepage": "https://github.com/talhabalaj/youtube-dl-web-api#readme"
+  "homepage": "https://github.com/talhabalaj/youtube-dl-web-api#readme",
+  "dependencies": {
+    "ytdl-core": "^0.25.2"
+  }
 }
