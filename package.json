@@ -1,0 +1,24 @@
+{
+  "name": "youtube-dl-api-web",
+  "version": "0.0.1",
+  "description": "YouTubeDL API",
+  "main": "index.js",
+  "scripts": {
+    "test": "n"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/talhabalaj/youtube-dl-web-api.git"
+  },
+  "keywords": [
+    "youtube",
+    "youtube-dl",
+    "youtube-api"
+  ],
+  "author": "Talha Balaj",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/talhabalaj/youtube-dl-web-api/issues"
+  },
+  "homepage": "https://github.com/talhabalaj/youtube-dl-web-api#readme"
+}
