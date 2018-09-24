@@ -18,7 +18,7 @@ handleServer = (req, res) => {
             res.end(JSON.stringify(data));
           })
           .catch(error => {
-            console.log("Error occurred:" + error.message || error +  " <:" + youtubeVideoId)
+            console.log("Error occurred: " + error.message || error +  " <:" + youtubeVideoId)
             res.end(JSON.stringify(error));
           });
     } else {
