@@ -1,35 +1,57 @@
 const youTubeDl = require("ytdl-core");
 const http = require("http");
+const httpProxy = require("http-proxy");
 
-let handleServer;
+const proxy = httpProxy.createProxyServer({});
+
 const PORT = process.env.PORT || 3000;
+const youTubeUrl = "https://youtube.com/watch?v=";
 
-const youTubeUrl = 'https://youtube.com/watch?v=';
-
-handleServer = (req, res) => {
-    console.log("Request received");
-    if (req.url.match(/\/[A-Z-a-z-0-9-_]{11}/gi)) {
-        console.log("Getting youtube stuff");
-        const youtubeVideoId = req.url.split('/')[1];
-        const youTubeUrlOfVideo = youTubeUrl + youtubeVideoId;
-        youTubeDl.getInfo(youTubeUrlOfVideo)
-          .then(data => {
-            console.log("Successfully completed request to YouTube: " + youtubeVideoId)
-            res.end(JSON.stringify(data));
-          })
-          .catch(error => {
-            console.log("Error occurred: " + error.message || error +  " <:" + youtubeVideoId)
-            res.end(JSON.stringify(error));
-          });
-    } else {
-        console.log("404 occurred");
-        res.end(JSON.stringify({
-            Error: "404 not found"
-        }))
-    }
-}
+const handleServer = (req, res) => {
+  console.log("Request received");
+  if (req.url.match(/\/[A-Z-a-z-0-9-_]{11}\/[0-9]{2,3}/gi)) {
+    console.log("Getting youtube stuff");
+    const youtubeVideoId = req.url.split("/")[1];
+    const downloadId = req.url.split("/")[2];
+    const youTubeUrlOfVideo = youTubeUrl + youtubeVideoId;
+    youTubeDl
+      .getInfo(youTubeUrlOfVideo)
+      .then(data => {
+        console.log(
+          `Successfully completed request to YouTube: ${youtubeVideoId}`
+        );
+        const requestedFormat = data.formats.find(f => f.itag === downloadId);
+        // req.pipe(
+        //   http.get(requestedFormat.url, resp => {
+        //     resp.pipe(
+        //       res,
+        //       { end: true }
+        //     );
+        //   }),
+        //   {
+        //     end: true
+        //   }
+        // );
+        console.log(requestedFormat);
+        proxy.web(req, res, { target: requestedFormat.url });
+      })
+      .catch(error => {
+        console.log(
+          `Error occurred: ${error.message || error} <:${youtubeVideoId}`
+        );
+        res.end(JSON.stringify(error));
+      });
+  } else {
+    console.log("404 occurred");
+    res.end(
+      JSON.stringify({
+        Error: "404 not found"
+      })
+    );
+  }
+};
 
 const server = http.createServer(handleServer);
-server.listen(PORT)
+server.listen(PORT);
 
-console.log("Listening http://localhost:" + PORT)
+console.log(`Listening http://127.0.0.1:${PORT}`);
