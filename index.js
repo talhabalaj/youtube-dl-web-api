@@ -34,25 +34,6 @@ const handleServer = (req, res) => {
             "Accept-Ranges": "bytes",
             "Content-Length": chunksize
           });
-          const url = URL.parse(requestedFormat.url);
-          req.pipe(
-            https.request(
-              {
-                ...url,
-                headers: {
-                  "Content-Range": `bytes ${start}-${end}/${total}`
-                }
-              },
-              resp => {
-                resp.pipe(
-                  res,
-                  { end: true }
-                );
-              }
-            ),
-            { end: true }
-          );
-        } else {
           req.pipe(
             https.get(requestedFormat.url, resp => {
               res.writeHead(resp.statusCode, resp.headers);
@@ -66,7 +47,6 @@ const handleServer = (req, res) => {
             }
           );
           console.log(requestedFormat);
-        }
       })
       .catch(error => {
         console.log(
