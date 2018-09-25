@@ -1,6 +1,7 @@
 const youTubeDl = require("ytdl-core");
 const http = require("http");
 const https = require("https");
+const URL = require("url");
 
 const PORT = process.env.PORT || 3000;
 const youTubeUrl = "https://youtube.com/watch?v=";
@@ -19,18 +20,53 @@ const handleServer = (req, res) => {
           `Successfully completed request to YouTube: ${youtubeVideoId}`
         );
         const requestedFormat = data.formats.find(f => f.itag === downloadId);
-        req.pipe(
-          https.get(requestedFormat.url, resp => {
-            resp.pipe(
-              res,
-              { end: true }
-            );
-          }),
-          {
-            end: true
-          }
-        );
-        console.log(requestedFormat);
+        if (req.headers.range) {
+          const total = requestedFormat.clen;
+          const { range } = req.headers;
+          const parts = range.replace(/bytes=/, "").split("-");
+          const [partialstart, partialend] = parts;
+
+          const start = parseInt(partialstart, 10);
+          const end = partialend ? parseInt(partialend, 10) : total - 1;
+          const chunksize = end - start + 1;
+          res.writeHead(206, {
+            "Content-Range": `bytes ${start}-${end}/${total}`,
+            "Accept-Ranges": "bytes",
+            "Content-Length": chunksize
+          });
+          const url = URL.parse(requestedFormat.url);
+          req.pipe(
+            https.request(
+              {
+                ...url,
+                headers: {
+                  "Content-Range": `bytes ${start}-${end}/${total}`
+                }
+              },
+              resp => {
+                resp.pipe(
+                  res,
+                  { end: true }
+                );
+              }
+            ),
+            { end: true }
+          );
+        } else {
+          req.pipe(
+            https.get(requestedFormat.url, resp => {
+              res.writeHead(resp.statusCode, resp.headers);
+              resp.pipe(
+                res,
+                { end: true }
+              );
+            }),
+            {
+              end: true
+            }
+          );
+          console.log(requestedFormat);
+        }
       })
       .catch(error => {
         console.log(
