@@ -1,7 +1,6 @@
 const youTubeDl = require("ytdl-core");
-const http = require("http");
-const https = require("https");
-const URL = require("url");
+const { createServer } = require("http");
+const { get } = require("https");
 
 const PORT = process.env.PORT || 3000;
 const youTubeUrl = "https://youtube.com/watch?v=";
@@ -22,7 +21,7 @@ const handleServer = (req, res) => {
         const requestedFormat = data.formats.find(f => f.itag === downloadId);
 
         req.pipe(
-          https.get(requestedFormat.url, resp => {
+          get(requestedFormat.url, resp => {
             resp.headers["Content-Type"] = "application/octet-stream";
             resp.headers["Content-Disposition"] = `inline; filename="${
               data.title
@@ -55,7 +54,7 @@ const handleServer = (req, res) => {
   }
 };
 
-const server = http.createServer(handleServer);
+const server = createServer(handleServer);
 server.listen(PORT);
 
 console.log(`Listening http://127.0.0.1:${PORT}`);
