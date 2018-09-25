@@ -20,33 +20,24 @@ const handleServer = (req, res) => {
           `Successfully completed request to YouTube: ${youtubeVideoId}`
         );
         const requestedFormat = data.formats.find(f => f.itag === downloadId);
-        if (req.headers.range) {
-          const total = requestedFormat.clen;
-          const { range } = req.headers;
-          const parts = range.replace(/bytes=/, "").split("-");
-          const [partialstart, partialend] = parts;
 
-          const start = parseInt(partialstart, 10);
-          const end = partialend ? parseInt(partialend, 10) : total - 1;
-          const chunksize = end - start + 1;
-          res.writeHead(206, {
-            "Content-Range": `bytes ${start}-${end}/${total}`,
-            "Accept-Ranges": "bytes",
-            "Content-Length": chunksize
-          });
-          req.pipe(
-            https.get(requestedFormat.url, resp => {
-              res.writeHead(resp.statusCode, resp.headers);
-              resp.pipe(
-                res,
-                { end: true }
-              );
-            }),
-            {
-              end: true
-            }
-          );
-          console.log(requestedFormat);
+        req.pipe(
+          https.get(requestedFormat.url, resp => {
+            resp.headers["Content-Type"] = "application/octet-stream";
+            resp.headers["Content-Disposition"] = `inline; filename="${
+              data.title
+            }.${requestedFormat.container}"`;
+            res.writeHead(resp.statusCode, resp.headers);
+            resp.pipe(
+              res,
+              { end: true }
+            );
+          }),
+          {
+            end: true
+          }
+        );
+        console.log(requestedFormat);
       })
       .catch(error => {
         console.log(
