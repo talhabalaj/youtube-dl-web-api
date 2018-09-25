@@ -1,8 +1,6 @@
 const youTubeDl = require("ytdl-core");
 const http = require("http");
-const httpProxy = require("http-proxy");
-
-const proxy = httpProxy.createProxyServer({});
+const https = require("https");
 
 const PORT = process.env.PORT || 3000;
 const youTubeUrl = "https://youtube.com/watch?v=";
@@ -21,19 +19,18 @@ const handleServer = (req, res) => {
           `Successfully completed request to YouTube: ${youtubeVideoId}`
         );
         const requestedFormat = data.formats.find(f => f.itag === downloadId);
-        // req.pipe(
-        //   http.get(requestedFormat.url, resp => {
-        //     resp.pipe(
-        //       res,
-        //       { end: true }
-        //     );
-        //   }),
-        //   {
-        //     end: true
-        //   }
-        // );
+        req.pipe(
+          https.get(requestedFormat.url, resp => {
+            resp.pipe(
+              res,
+              { end: true }
+            );
+          }),
+          {
+            end: true
+          }
+        );
         console.log(requestedFormat);
-        proxy.web(req, res, { target: requestedFormat.url });
       })
       .catch(error => {
         console.log(
