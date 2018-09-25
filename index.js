@@ -1,13 +1,16 @@
 const youTubeDl = require("ytdl-core");
 const { createServer } = require("http");
 const { get } = require("https");
+const { readFileSync } = require("fs");
 
 const PORT = process.env.PORT || 3000;
 const youTubeUrl = "https://youtube.com/watch?v=";
 
 const handleServer = (req, res) => {
   console.log("Request received");
-  if (req.url.match(/\/[A-Z-a-z-0-9-_]{11}\/[0-9]{2,3}/gi)) {
+  if (req.url === "/") {
+    res.end(readFileSync("index.html"));
+  } else if (req.url.match(/\/[A-Z-a-z-0-9-_]{11}\/[0-9]{2,3}/gi)) {
     console.log("Getting youtube stuff");
     const youtubeVideoId = req.url.split("/")[1];
     const downloadId = req.url.split("/")[2];
