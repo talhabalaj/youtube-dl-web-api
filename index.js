@@ -10,6 +10,18 @@ const handleServer = (req, res) => {
   console.log("Request received");
   if (req.url === "/") {
     res.end(readFileSync("index.html"));
+
+  } else if (req.url.match(/\/info\/[A-Z-a-z-0-9-_]{11}/gi)) {
+    const youtubeVideoId = req.url.split("/")[2];
+    const youTubeUrlOfVideo = youTubeUrl + youtubeVideoId;
+    youTubeDl
+      .getInfo(youTubeUrlOfVideo)
+      .then(data => {
+        res.end(JSON.stringify(data))
+      })
+      .catch(err => {
+        res.end(JSON.stringify(err))
+      })
   } else if (req.url.match(/\/[A-Z-a-z-0-9-_]{11}\/[0-9]{2,3}/gi)) {
     console.log("Getting youtube stuff");
     const youtubeVideoId = req.url.split("/")[1];
